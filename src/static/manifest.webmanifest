@@ -1,0 +1,49 @@
+{
+  "id": "./",
+  "name": "Уке — укулеле каждый день",
+  "short_name": "Уке",
+  "description": "Короткие занятия на укулеле каждый день: уроки, песни с аккордами, тюнер и метроном.",
+  "lang": "ru",
+  "dir": "ltr",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fbf6ef",
+  "theme_color": "#fbf6ef",
+  "categories": ["music", "education"],
+  "icons": [
+    { "src": "icons/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "share_target": {
+    "action": "./?share=1",
+    "method": "GET",
+    "params": { "title": "title", "text": "text", "url": "url" }
+  },
+  "shortcuts": [
+    {
+      "name": "Занятие",
+      "short_name": "Занятие",
+      "description": "Занятие на сегодня",
+      "url": "./#/practice",
+      "icons": [{ "src": "icons/shortcut-practice.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Тюнер",
+      "short_name": "Тюнер",
+      "description": "Настроить укулеле",
+      "url": "./#/tools/tuner",
+      "icons": [{ "src": "icons/shortcut-tuner.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Песни",
+      "short_name": "Песни",
+      "description": "Мои песни",
+      "url": "./#/songs",
+      "icons": [{ "src": "icons/shortcut-songs.png", "sizes": "96x96", "type": "image/png" }]
+    }
+  ]
+}

@@ -1,0 +1,1312 @@
+/* Тренажёры (drills): отсчёт, таймер, смены, бой, новый аккорд, разминка, тюнер, метроном.
+   Только токены из styles/tokens.css. Раскладка в две колонки — по ширине самого тренажёра (container query),
+   потому что он живёт и на полном экране, и внутри урока или занятия. */
+
+/* ---------- общий каркас ---------- */
+
+.drill {
+  container: drill / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+
+/* Растягивается почти на экран — кнопки оказываются в зоне большого пальца */
+.drill--fill {
+  min-height: min(680px, calc(100dvh - var(--head-h) - var(--safe-t) - 120px));
+}
+
+.drill-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.drill-title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.drill-cols {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.drill-center {
+  flex: 1 1 auto;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.drill-note {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.drill-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--teal-soft);
+  color: var(--teal-ink);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+.drill-tip > svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.drill-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  margin-top: auto;
+  padding-top: var(--s-2);
+  padding-bottom: var(--safe-b);
+}
+
+.drill-actions > .btn {
+  flex: 1 1 0;
+  /* не сжимать текст кнопки: если две не помещаются, вторая уходит на новую строку */
+  min-width: fit-content;
+}
+
+.drill-actions > .btn--ghost {
+  flex: 0 1 auto;
+}
+
+.drill-actions--center {
+  justify-content: center;
+}
+
+.drill-actions--stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.drill-actions--stack > .drill-actions {
+  margin-top: 0;
+  padding: 0;
+}
+
+.drill-actions--stack > .btn--ghost {
+  align-self: center;
+}
+
+.drill--compact {
+  gap: var(--s-3);
+}
+
+.drill--compact .drill-actions {
+  margin-top: var(--s-2);
+}
+
+/* Цифры-показатели в одну строку: цель, рекорд, прошлый раз */
+.drill-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.drill-stat {
+  display: flex;
+  flex-direction: column;
+  min-width: 76px;
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.drill-stat-v {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.drill-stat-l {
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+}
+
+/* Крупный Stepper для ввода числа (смены за минуту) */
+.drill-bigstepper {
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.drill-bigstepper .stepper-label {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.drill-bigstepper .stepper-ctrl {
+  gap: var(--s-3);
+  padding: 6px;
+}
+
+.drill-bigstepper .stepper-btn {
+  width: 64px;
+  height: 64px;
+}
+
+.drill-bigstepper .stepper-value {
+  min-width: 3ch;
+  font-size: clamp(2.75rem, 14vw, 4rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Итоговая карточка */
+.drill-result {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: var(--s-5) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  text-align: center;
+  animation: uke-rise var(--dur-3) var(--ease-out) both;
+}
+
+.drill-result--record {
+  border-color: color-mix(in srgb, var(--warn) 55%, var(--line));
+  background: linear-gradient(180deg, var(--warn-soft), var(--surface) 70%);
+}
+
+.drill-result--good {
+  border-color: color-mix(in srgb, var(--success) 40%, var(--line));
+}
+
+.drill-result-num {
+  font-size: clamp(3.5rem, 20vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.drill-result-unit {
+  margin-left: 6px;
+  color: var(--ink-2);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.drill-result-title {
+  font-size: var(--fs-lg);
+}
+
+.drill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-sm);
+  font-weight: 750;
+  animation: drill-pop 520ms var(--ease-out) both;
+}
+
+.drill-badge--record {
+  background: var(--warn);
+  color: var(--on-warn);
+}
+
+.drill-badge--good {
+  background: var(--success-soft);
+  color: var(--success-ink);
+}
+
+.drill-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: var(--s-2);
+  font-size: var(--fs-sm);
+}
+
+.drill-lines li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--ink-2);
+}
+
+.drill-lines li.is-ok {
+  color: var(--success-ink);
+  font-weight: 650;
+}
+
+.drill-lines-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+
+@keyframes drill-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@container drill (min-width: 640px) {
+  .drill-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--s-6);
+  }
+
+  .drill-actions {
+    justify-content: flex-end;
+  }
+
+  .drill-actions > .btn {
+    flex: 0 1 auto;
+    min-width: 168px;
+  }
+
+  .drill-actions > .btn--block {
+    flex: 1 1 auto;
+  }
+}
+
+/* ---------- Countdown ---------- */
+
+.cdn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4) 0;
+  text-align: center;
+}
+
+.cdn-label {
+  color: var(--ink-2);
+  font-size: var(--fs-lg);
+  font-weight: 650;
+}
+
+.cdn-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(160px, 52vw, 240px);
+  aspect-ratio: 1;
+}
+
+.cdn-halo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  animation: cdn-halo 900ms var(--ease-out) both;
+}
+
+.cdn-num {
+  position: relative;
+  color: var(--accent-ink);
+  font-size: clamp(6rem, 34vw, 9.5rem);
+  font-weight: 800;
+  line-height: 1;
+  animation: cdn-pop 900ms var(--ease-out) both;
+}
+
+.cdn-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.cdn-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  transition: background-color var(--dur-2) var(--ease);
+}
+
+.cdn-dot.is-on {
+  background: var(--accent);
+}
+
+@keyframes cdn-pop {
+  0% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes cdn-halo {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cdn-num,
+  .cdn-halo {
+    animation: none;
+  }
+
+  .cdn-halo {
+    opacity: 0.5;
+  }
+}
+
+/* ---------- BigTimer ---------- */
+
+.btimer {
+  --btimer-size: 260px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(var(--btimer-size), 74vw);
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.btimer svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.btimer-track {
+  stroke: var(--surface-3);
+}
+
+.btimer-bar {
+  stroke: var(--teal);
+  transition: stroke var(--dur-3) var(--ease);
+}
+
+.btimer.is-ending .btimer-bar {
+  stroke: var(--accent);
+}
+
+.btimer.is-over .btimer-bar {
+  stroke: var(--success);
+}
+
+.btimer.is-paused {
+  opacity: 0.7;
+}
+
+.btimer-center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.btimer-time {
+  font-size: clamp(2.75rem, 14vw, 4rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.btimer.is-ending .btimer-time {
+  color: var(--accent-ink);
+}
+
+.btimer-time.is-last {
+  animation: drill-tick 1s var(--ease-out) both;
+}
+
+.btimer-extra,
+.btimer-label {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 650;
+}
+
+@keyframes drill-tick {
+  0% {
+    transform: scale(1.12);
+  }
+  40%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---------- OmcDrill ---------- */
+
+.omc-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+}
+
+.omc-swap {
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+.omc-pair--run .cd {
+  --cd-w: clamp(96px, 30vw, 128px);
+}
+
+.omc-pair--dim {
+  opacity: 0.6;
+}
+
+.omc-countwrap {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+}
+
+.omc-run {
+  flex: 1 1 auto;
+  align-content: center;
+}
+
+.omc-hist {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  width: min(220px, 80%);
+  height: 56px;
+  margin-top: var(--s-3);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.omc-hist-bar {
+  flex: 1 1 0;
+  border-radius: 4px 4px 1px 1px;
+  background: var(--surface-3);
+}
+
+.omc-hist-bar.is-last {
+  background: var(--accent);
+}
+
+.omc-hist-target {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 2px dashed color-mix(in srgb, var(--success) 70%, transparent);
+}
+
+/* ---------- StrumPattern ---------- */
+
+.spat {
+  --spat-cell: 36px;
+  --spat-gap: 3px;
+  display: flex;
+  justify-content: center;
+  gap: var(--spat-gap);
+  max-width: 100%;
+}
+
+.spat--sm {
+  --spat-cell: 22px;
+  --spat-gap: 1px;
+}
+
+.spat--lg {
+  --spat-cell: clamp(30px, 9.4vw, 56px);
+  --spat-gap: 4px;
+}
+
+.spat-slot {
+  display: flex;
+  flex: 0 0 var(--spat-cell);
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 0 4px;
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  transition: background-color 90ms linear, color 90ms linear, transform 90ms var(--ease);
+}
+
+/* Доли «1 и» держатся парами */
+.spat-slot.is-beat:not(:first-child) {
+  margin-left: calc(var(--spat-cell) * 0.22);
+}
+
+.spat-glyph {
+  width: 72%;
+  height: auto;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.spat-restdot {
+  fill: currentColor;
+  stroke: none;
+}
+
+.spat-slot--up .spat-glyph {
+  stroke-width: 2.6;
+}
+
+.spat-slot--chuck {
+  color: var(--teal);
+}
+
+.spat-slot--rest {
+  color: var(--ink-3);
+}
+
+.spat-count {
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.spat--lg .spat-count {
+  font-size: var(--fs-sm);
+}
+
+.spat--sm .spat-count {
+  display: none;
+}
+
+.spat-slot.is-beat .spat-count {
+  color: var(--ink-2);
+}
+
+.spat-slot.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  transform: translateY(-2px) scale(1.06);
+}
+
+.spat-slot.is-active .spat-count {
+  color: var(--accent-ink);
+}
+
+.spat-slot--rest.is-active {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+/* ---------- StrumDrill ---------- */
+
+.strum-bars {
+  display: flex;
+  gap: 4px;
+}
+
+.strum-bar {
+  flex: 1 1 0;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-3);
+  transition: background-color var(--dur-2) var(--ease);
+}
+
+.strum-bar.is-done {
+  background: var(--teal);
+}
+
+.strum-bar.is-current {
+  background: var(--accent);
+}
+
+.strum-stage {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-5);
+}
+
+.strum-countin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  min-height: 150px;
+}
+
+.strum-countin-num {
+  color: var(--accent-ink);
+  font-size: clamp(4.5rem, 24vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1;
+  animation: drill-tick 400ms var(--ease-out) both;
+}
+
+.strum-chordline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 150px;
+}
+
+.strum-chord {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  animation: uke-fade-in var(--dur-2) var(--ease) both;
+}
+
+.strum-chord-name {
+  font-size: var(--fs-chord);
+}
+
+.strum-next {
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  transition: background-color 90ms linear, color 90ms linear;
+}
+
+.strum-next.is-soon {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.strum-seq {
+  font-size: var(--fs-lg);
+}
+
+/* ---------- ChordLearn ---------- */
+
+.learn-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.learn-visual .cd--lg {
+  --cd-w: clamp(150px, 46vw, 200px);
+}
+
+.learn-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap);
+  padding: 0 var(--s-4);
+  border-radius: var(--r-pill);
+  color: var(--accent-ink);
+  font-weight: 650;
+}
+
+@media (hover: hover) {
+  .learn-listen:hover {
+    background: var(--surface-2);
+  }
+}
+
+.learn-title {
+  font-size: var(--fs-3xl);
+}
+
+.learn-hints {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.learn-hints li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  line-height: 1.4;
+}
+
+.learn-finger {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cd-dot);
+  color: var(--cd-dot-ink);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+}
+
+.learn-finger--open {
+  border: 2px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink-2);
+}
+
+.learn-tips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+  font-size: var(--fs-sm);
+  animation: uke-rise var(--dur-3) var(--ease-out) both;
+}
+
+.learn-tips ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 1.1em;
+  list-style: disc;
+}
+
+.learn-done-mark {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--success);
+  color: var(--on-success);
+  animation: drill-pop 560ms var(--ease-out) both;
+}
+
+/* ---------- WarmupQuiz ---------- */
+
+.wq-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.wq-dots {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 4px;
+}
+
+.wq-dot {
+  flex: 1 1 0;
+  max-width: 48px;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-3);
+}
+
+.wq-dot.is-done {
+  background: var(--teal);
+}
+
+.wq-dot.is-current {
+  background: var(--accent);
+}
+
+.wq-card {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  min-height: 300px;
+  padding: var(--s-5) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  text-align: center;
+  animation: uke-rise var(--dur-3) var(--ease-out) both;
+}
+
+.wq-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  animation: uke-fade-in var(--dur-3) var(--ease) both;
+}
+
+.wq-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+
+.wq-summary li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-lg);
+}
+
+.wq-summary li.is-ok {
+  background: var(--success-soft);
+  color: var(--success-ink);
+}
+
+.wq-summary li.is-miss {
+  background: var(--danger-soft);
+  color: var(--danger-ink);
+}
+
+/* ---------- TunerPanel ---------- */
+
+.tuner-gauge-wrap {
+  position: relative;
+  width: min(100%, 340px);
+  margin-inline: auto;
+}
+
+.tuner--compact .tuner-gauge-wrap {
+  width: min(100%, 260px);
+}
+
+.tuner-gauge {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.tuner-arc {
+  fill: none;
+  stroke: var(--surface-3);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.tuner-zone {
+  fill: none;
+  stroke: var(--success);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.tuner-tick {
+  stroke: var(--ink-3);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.tuner-tick--major {
+  stroke: var(--ink-2);
+  stroke-width: 2.5;
+}
+
+.tuner-scale-label {
+  fill: var(--ink-3);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.tuner-needle {
+  transform-box: view-box;
+  transform-origin: 120px 130px;
+  transition: transform 140ms linear;
+}
+
+.tuner-needle line {
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke var(--dur-2) var(--ease);
+}
+
+.tuner-needle.is-in line {
+  stroke: var(--success);
+}
+
+.tuner-gauge.is-idle .tuner-needle line,
+.tuner-gauge.is-idle .tuner-zone {
+  opacity: 0.4;
+}
+
+.tuner-hub {
+  fill: var(--ink);
+}
+
+.tuner-readout {
+  /* показания под шкалой, а не поверх оси стрелки */
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  min-height: 2.75rem;
+  margin-top: var(--s-1);
+  pointer-events: none;
+}
+
+.tuner-note {
+  font-size: clamp(2rem, 11vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.tuner-cents {
+  min-width: 3ch;
+  color: var(--ink-2);
+  font-size: var(--fs-lg);
+  font-weight: 750;
+}
+
+.tuner-readout.is-in .tuner-note,
+.tuner-readout.is-in .tuner-cents {
+  color: var(--success-ink);
+}
+
+.tuner-hint {
+  min-height: 1.5em;
+  color: var(--ink-2);
+  font-size: var(--fs-lg);
+  font-weight: 650;
+}
+
+.tuner-hint.is-in {
+  color: var(--success-ink);
+}
+
+.tuner-hint.is-up,
+.tuner-hint.is-down {
+  color: var(--accent-ink);
+}
+
+.tuner-heard {
+  margin-top: calc(-1 * var(--s-2));
+}
+
+.tuner-strings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+
+.tuner-string {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 64px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease),
+    transform var(--dur-1) var(--ease);
+}
+
+.tuner-string:active {
+  transform: scale(0.95);
+}
+
+.tuner-string-name {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.tuner-string-mark {
+  display: grid;
+  place-items: center;
+  height: 16px;
+}
+
+.tuner-string-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--surface-3);
+}
+
+.tuner-string.is-current {
+  border-color: var(--accent);
+}
+
+.tuner-string.is-locked {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.tuner-string.is-tuned {
+  border-color: var(--success);
+}
+
+.tuner-string.is-tuned .tuner-string-mark {
+  color: var(--success-ink);
+  animation: drill-pop 420ms var(--ease-out) both;
+}
+
+.tuner-string.is-playing::after {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border: 2px solid var(--teal);
+  border-radius: inherit;
+  animation: tuner-ring 1.6s var(--ease-out) both;
+  pointer-events: none;
+}
+
+@keyframes tuner-ring {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+@media (hover: hover) {
+  .tuner-string:hover:not(.is-locked) {
+    background: var(--surface-2);
+  }
+}
+
+.tuner-lock {
+  flex-wrap: wrap;
+}
+
+.tuner-all {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--success-soft);
+  color: var(--success-ink);
+  font-weight: 750;
+  animation: drill-pop 520ms var(--ease-out) both;
+}
+
+.tuner-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--danger-soft);
+  color: var(--danger-ink);
+  font-size: var(--fs-sm);
+}
+
+.tuner-error > svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+/* ---------- MetronomePanel ---------- */
+
+.metro-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.metro-pulse {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+}
+
+.metro-dot {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  transition: background-color var(--dur-2) var(--ease);
+}
+
+.metro-dot.is-running {
+  background: var(--teal);
+}
+
+.metro-dot.is-pulse {
+  animation: metro-pulse 220ms var(--ease-out);
+}
+
+.metro-dot.is-strong {
+  background: var(--accent);
+  animation-name: metro-pulse-strong;
+}
+
+@keyframes metro-pulse {
+  0% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes metro-pulse-strong {
+  0% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.metro-beats {
+  display: flex;
+  gap: 10px;
+}
+
+.metro-beat {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  transition: background-color 60ms linear, border-color 60ms linear;
+}
+
+.metro-beat.is-accent {
+  border-color: var(--accent);
+}
+
+.metro-beat.is-on {
+  border-color: var(--teal);
+  background: var(--teal);
+}
+
+.metro-beat.is-accent.is-on {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.metro-bpm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.metro-step {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 46px;
+  height: var(--tap);
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  transition: transform var(--dur-1) var(--ease), background-color var(--dur-2) var(--ease);
+}
+
+.metro-step:active {
+  transform: scale(0.92);
+}
+
+@media (hover: hover) {
+  .metro-step:hover {
+    background: var(--surface-3);
+  }
+}
+
+.metro-bpm-num {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.metro-bpm-num output {
+  font-size: clamp(3.25rem, 17vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.metro-bpm-word {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+.metro-segs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.metro-segs > * {
+  flex: 1 1 140px;
+}
+
+.metro-tap {
+  touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* без анимации пульс виден только по цвету точки и долей */
+  .metro-dot.is-pulse,
+  .metro-dot.is-strong {
+    animation: none;
+  }
+}

@@ -1,0 +1,891 @@
+/* Лист песни и режим игры: SongSheet, ChordStrip, KeyBanner, PlayAlong, экран SongView.
+   Блоки: .songsheet .chordstrip .keybanner .playalong .songview. Цвета — только токены. */
+
+/* ---------- SongSheet ---------- */
+
+.songsheet {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  min-width: 0;
+  color: var(--ink);
+  font-size: var(--songsheet-fs, 18px);
+  line-height: 1.5;
+}
+
+.songsheet__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: var(--fs-sm);
+}
+
+.songsheet__tag {
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.songsheet__sec {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  min-width: 0;
+}
+
+/* Припев — акцентная рейка слева; текст остаётся на одной линии с куплетами */
+.songsheet__sec--chorus,
+.songsheet__sec--bridge {
+  margin: 0 -8px 0 -12px;
+  padding: 8px 8px 10px;
+  border-left: 4px solid var(--accent);
+  border-radius: 4px var(--r-md) var(--r-md) 4px;
+  background: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+}
+
+.songsheet__sec--bridge {
+  border-left-color: var(--teal);
+  background: color-mix(in srgb, var(--teal-soft) 45%, transparent);
+}
+
+.songsheet__label {
+  margin-bottom: 0.1em;
+  color: var(--ink-2);
+  font-size: max(0.75rem, 0.62em);
+  font-weight: 750;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.songsheet__sec--chorus .songsheet__label {
+  color: var(--accent-ink);
+}
+
+.songsheet__sec--bridge .songsheet__label {
+  color: var(--teal-ink);
+}
+
+.songsheet__line {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.songsheet__line--chorded {
+  margin-top: 0.3em;
+  line-height: 1.3;
+}
+
+/* Слово не рвётся между слогами с аккордами; очень длинное — переносится внутри */
+.songsheet__word {
+  white-space: nowrap;
+}
+
+.songsheet__word.is-long {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Сегмент: аккорд сверху, слог снизу; базовая линия — по слогу, чтобы текст строки был ровным */
+.songsheet__seg {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+  vertical-align: baseline;
+  baseline-source: last;
+}
+
+@supports not (baseline-source: last) {
+  .songsheet__seg {
+    display: inline-block;
+  }
+
+  .songsheet__seg > .songsheet__chord,
+  .songsheet__seg > .songsheet__syl {
+    display: block;
+  }
+}
+
+.songsheet__chord {
+  position: relative;
+  margin: 0 0.4em 0.05em -0.14em;
+  padding: 0 0.14em;
+  border: 1.5px solid transparent;
+  border-radius: 6px;
+  background: none;
+  color: var(--accent-ink);
+  font: inherit;
+  font-size: 0.8em;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-align: left;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button.songsheet__chord {
+  cursor: pointer;
+  transition: background-color var(--dur-2) var(--ease), transform var(--dur-1) var(--ease);
+}
+
+/* Зона нажатия чуть больше самого имени */
+button.songsheet__chord::after {
+  content: '';
+  position: absolute;
+  inset: -6px -4px;
+}
+
+button.songsheet__chord:active {
+  background: var(--accent-soft);
+  transform: scale(0.94);
+}
+
+.songsheet__chord.is-unknown,
+.songsheet__chip.is-unknown {
+  border-style: dashed;
+  border-color: var(--accent);
+}
+
+.songsheet__syl {
+  white-space: inherit;
+}
+
+.songsheet__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0.25em 0;
+}
+
+.songsheet__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: max(2.1em, 40px);
+  padding: 0 0.65em;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--accent-ink);
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+button.songsheet__chip {
+  cursor: pointer;
+  transition: transform var(--dur-1) var(--ease);
+}
+
+button.songsheet__chip:active {
+  transform: scale(0.94);
+}
+
+.songsheet__times {
+  color: var(--ink-2);
+  font-size: 0.85em;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.songsheet__comment {
+  margin: 0.15em 0;
+  color: var(--ink-2);
+  font-size: 0.86em;
+  font-style: italic;
+}
+
+.songsheet__tab {
+  margin: 0.3em 0;
+  padding: 0.6em 0.75em;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: max(0.72em, 12px);
+  line-height: 1.35;
+  white-space: pre;
+}
+
+.songsheet__gap {
+  height: 0.45em;
+}
+
+.songsheet--structure {
+  gap: 1em;
+}
+
+.songsheet--structure .songsheet__chips {
+  margin: 0.15em 0;
+}
+
+@media (hover: hover) {
+  button.songsheet__chord:hover,
+  button.songsheet__chip:hover {
+    background: var(--accent-soft);
+  }
+}
+
+/* ---------- ChordStrip ---------- */
+
+.chordstrip__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chordstrip--row {
+  margin: 0 calc(-1 * var(--gutter));
+}
+
+.chordstrip--sticky {
+  position: sticky;
+  z-index: 12;
+  top: var(--chordstrip-top, calc(var(--head-h) + var(--safe-t)));
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.chordstrip--row .chordstrip__list {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  padding: 9px var(--gutter) 8px;
+  scroll-padding-inline: var(--gutter);
+}
+
+.chordstrip--row .chordstrip__list::-webkit-scrollbar {
+  display: none;
+}
+
+.chordstrip__item {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 4px 3px 2px;
+  border: 1.5px solid transparent;
+  border-radius: var(--r-sm);
+  scroll-snap-align: start;
+}
+
+.chordstrip__item.is-unknown {
+  border-style: dashed;
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 50%, transparent);
+}
+
+.chordstrip__badge {
+  /* в углу снаружи плитки, чтобы не закрывать название аккорда */
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  box-shadow: 0 0 0 2px var(--bg);
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  pointer-events: none;
+}
+
+.chordstrip--compact .chordstrip__item {
+  padding: 0;
+  border-radius: var(--r-pill);
+}
+
+.chordstrip--compact .chordstrip__badge {
+  top: -5px;
+  right: -5px;
+}
+
+.chordstrip--compact .chordstrip__list {
+  padding-top: 8px;
+}
+
+.chordstrip__name {
+  min-width: 48px;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--accent-ink);
+  font-size: var(--fs-md);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.chordstrip__name:disabled {
+  opacity: 1;
+}
+
+.chordstrip--vertical .chordstrip__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 8px;
+}
+
+.chordstrip--vertical.chordstrip--md .chordstrip__list,
+.chordstrip--vertical.chordstrip--lg .chordstrip__list {
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+}
+
+.chordstrip--vertical .chordstrip__item {
+  padding: 8px 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.chordstrip--vertical .chordstrip__item.is-unknown {
+  border: 1.5px dashed var(--accent);
+  background: color-mix(in srgb, var(--accent-soft) 50%, var(--surface));
+}
+
+/* ---------- KeyBanner ---------- */
+
+.keybanner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 6px 4px 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  animation: uke-rise var(--dur-3) var(--ease-out) both;
+}
+
+.keybanner--easy {
+  border-color: color-mix(in srgb, var(--success) 30%, transparent);
+  background: var(--success-soft);
+}
+
+.keybanner--missing {
+  border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+  background: var(--warn-soft);
+}
+
+.keybanner__icon {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  place-items: center;
+}
+
+.keybanner--easy .keybanner__icon {
+  color: var(--success-ink);
+}
+
+.keybanner--missing .keybanner__icon {
+  color: var(--warn-ink);
+}
+
+.keybanner__text {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  padding: 6px 0;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+}
+
+.keybanner__hint {
+  margin-top: 2px;
+  color: var(--ink-2);
+}
+
+.keybanner__chord {
+  padding: 4px 1px;
+  color: var(--accent-ink);
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.keybanner__close {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: start;
+}
+
+.keybanner__apply {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: start;
+  margin-bottom: 6px;
+}
+
+@media (min-width: 600px) {
+  .keybanner {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+
+  .keybanner__apply {
+    grid-column: 3;
+    grid-row: 1;
+    margin-bottom: 0;
+  }
+
+  .keybanner__close {
+    grid-column: 4;
+    align-self: center;
+  }
+}
+
+/* ---------- PlayAlong ---------- */
+
+.playalong {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.playalong__sheet {
+  min-width: 0;
+  padding: var(--s-2) 0 var(--s-4);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.playalong--embedded .playalong__sheet {
+  padding-top: 0;
+}
+
+.playalong--desktop {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+  gap: var(--s-6);
+  align-items: start;
+}
+
+.playalong__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.playalong--desktop .songsheet {
+  max-width: 72ch;
+}
+
+.playalong__aside {
+  position: sticky;
+  top: calc(var(--chordstrip-top, calc(var(--head-h) + var(--safe-t))) + 8px);
+  max-height: calc(100vh - var(--chordstrip-top, 56px) - 16px);
+  max-height: calc(100dvh - var(--chordstrip-top, 56px) - 16px);
+  padding-bottom: var(--s-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.playalong__panel {
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.playalong__panel-state {
+  font-weight: 700;
+}
+
+.playalong__keys {
+  line-height: 1.5;
+}
+
+/* Большая кнопка старта/паузы — в зоне большого пальца */
+.playalong__play {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-1), 0 6px 16px color-mix(in srgb, var(--accent) 30%, transparent);
+  transition: transform var(--dur-1) var(--ease), background-color var(--dur-2) var(--ease);
+}
+
+.playalong__play:active {
+  transform: scale(0.93);
+}
+
+.playalong__play--soft {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  box-shadow: none;
+}
+
+@media (min-width: 400px) {
+  .playalong__play {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.playalong__nudge {
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: playalong-nudge 700ms var(--ease-out) both;
+}
+
+@keyframes playalong-nudge {
+  from {
+    opacity: 0.9;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+.playalong__bar {
+  z-index: 16;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--s-2);
+  padding-top: var(--s-2);
+}
+
+.playalong__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.playalong__bar--embedded .playalong__controls {
+  justify-content: flex-start;
+  gap: var(--s-2);
+}
+
+.playalong__status {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-align: center;
+  animation: uke-fade-in var(--dur-2) var(--ease) both;
+}
+
+.playalong__status.is-end {
+  color: var(--success-ink);
+}
+
+.playalong__pop {
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  animation: uke-rise var(--dur-2) var(--ease-out) both;
+}
+
+.playalong__speed {
+  display: flex;
+  align-items: center;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+}
+
+.playalong__step {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: var(--ink);
+  transition: transform var(--dur-1) var(--ease), opacity var(--dur-2) var(--ease);
+}
+
+.playalong__step:active:not(:disabled) {
+  transform: scale(0.88);
+}
+
+.playalong__step:disabled {
+  opacity: 0.35;
+}
+
+.playalong__val {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 46px;
+  line-height: 1.05;
+}
+
+.playalong__val output {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.playalong__val small {
+  color: var(--ink-2);
+  font-size: 0.625rem;
+  font-weight: 650;
+}
+
+.playalong__tool {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  height: 48px;
+  padding: 0 8px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 800;
+  transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease), transform var(--dur-1) var(--ease);
+}
+
+.playalong__tool:active {
+  transform: scale(0.92);
+}
+
+.playalong__tool.is-active {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.playalong__tool.is-changed:not(.is-active) {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.playalong__aa {
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.playalong__key {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1rem;
+  line-height: 1.05;
+}
+
+.playalong__key small {
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+
+@media (hover: hover) {
+  .playalong__step:hover:not(:disabled),
+  .playalong__tool:hover:not(.is-active) {
+    background: var(--surface-3);
+  }
+
+  .playalong__play:hover {
+    filter: brightness(1.05);
+  }
+}
+
+/* Отсчёт 3-2-1 */
+.playalong__count {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: uke-fade-in var(--dur-2) var(--ease) both;
+}
+
+.playalong__count-hint {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+/* Конец песни и «Сыграл» */
+.playalong__end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-5) var(--s-4);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-lg);
+  text-align: center;
+}
+
+.playalong__end.is-ended {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--success) 35%, transparent);
+  background: var(--success-soft);
+  animation: uke-rise var(--dur-3) var(--ease-out) both;
+}
+
+.playalong__end-title {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.playalong__end.is-ended .playalong__end-title {
+  color: var(--success-ink);
+  font-size: var(--fs-lg);
+  font-weight: 750;
+}
+
+.btn.playalong__played.is-done,
+.btn.playalong__played.is-done:disabled {
+  --btn-bg: var(--success-soft);
+  --btn-fg: var(--success-ink);
+  --btn-border: color-mix(in srgb, var(--success) 40%, transparent);
+  background-image: none;
+  box-shadow: none;
+  opacity: 1;
+  animation: playalong-done 520ms var(--ease-out) both;
+}
+
+@keyframes playalong-done {
+  0% {
+    transform: scale(0.9);
+  }
+  55% {
+    transform: scale(1.07);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.playalong__chord {
+  padding-bottom: var(--s-2);
+}
+
+/* ---------- SongView ---------- */
+
+.songview__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.songview__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 650;
+}
+
+.songview__status--learning {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.songview__status--playing {
+  background: var(--teal-soft);
+  color: var(--teal-ink);
+}
+
+.songview__status--polished {
+  background: var(--success-soft);
+  color: var(--success-ink);
+}
+
+.songview__train {
+  margin-left: auto;
+}
+
+.songview__menu {
+  gap: var(--s-5);
+}
+
+.songview__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.songview__group + .songview__group {
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+
+.songview__preview {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.songview__art {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  object-fit: cover;
+}
+
+.songview__audio {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+}
+
+.songview__credit {
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+
+.songview__credit a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.songview__confirm {
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--danger-soft);
+  animation: uke-rise var(--dur-2) var(--ease-out) both;
+}
+
+.songview__confirm p {
+  color: var(--danger-ink);
+  font-weight: 650;
+}

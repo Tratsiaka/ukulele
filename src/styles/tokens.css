@@ -1,0 +1,236 @@
+/* Дизайн-токены «Уке»: тёплая палитра «закат и дерево».
+   Тема: светлая по умолчанию, тёмная — по системе (если тема не выбрана явно) или через data-theme="dark". */
+
+:root {
+  color-scheme: light;
+
+  /* Поверхности */
+  --bg: #fbf6ef;
+  --bg-glow: rgba(255, 150, 90, 0.18);
+  --surface: #fffdfa;
+  --surface-2: #f5ede3;
+  --surface-3: #ede2d5;
+  --line: #e9ddcf;
+  --line-strong: #d9c8b6;
+  --scrim: rgba(43, 33, 28, 0.42);
+
+  /* Текст */
+  --ink: #2b211c;
+  --ink-2: #6f6259;
+  --ink-3: #9a8b7f;
+
+  /* Акцент — коралл заката */
+  --accent: #e0613a;
+  --accent-strong: #c9482a;
+  --accent-2: #f08a3c;
+  --accent-soft: #fce3d6;
+  --accent-ink: #a83a1f;
+  --on-accent: #ffffff;
+  --sunset: linear-gradient(135deg, #f59a45 0%, #e8603c 55%, #d9485a 100%);
+
+  /* Второй цвет — морская бирюза */
+  --teal: #1e7e7a;
+  --teal-soft: #d7efec;
+  --teal-ink: #15605d;
+  --on-teal: #ffffff;
+
+  /* Состояния */
+  --success: #2b7f4f;
+  --success-soft: #ddf1e3;
+  --success-ink: #22673f;
+  --on-success: #ffffff;
+  --warn: #e8a33a;
+  --warn-soft: #fbebcb;
+  --warn-ink: #7a5410;
+  --on-warn: #3b2a12;
+  --danger: #c93636;
+  --danger-soft: #f9dcd8;
+  --danger-ink: #a12a2a;
+  --on-danger: #ffffff;
+
+  --focus: #1e7e7a;
+  --toast-action: #ffb067;
+
+  /* Диаграммы аккордов */
+  --cd-line: #8c7b6e;
+  --cd-nut: #2b211c;
+  --cd-dot: #c9482a;
+  --cd-dot-ink: #ffffff;
+  --cd-open: #2b211c;
+
+  /* Тени — тёплые, мягкие */
+  --shadow-1: 0 1px 2px rgba(74, 40, 18, 0.06), 0 2px 8px rgba(74, 40, 18, 0.05);
+  --shadow-2: 0 2px 6px rgba(74, 40, 18, 0.07), 0 10px 28px rgba(74, 40, 18, 0.1);
+  --shadow-3: 0 -4px 24px rgba(74, 40, 18, 0.12), 0 20px 48px rgba(74, 40, 18, 0.18);
+
+  /* Типографика: только системные шрифты */
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Roboto Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.75rem;
+  --fs-3xl: 2.25rem;
+  --fs-chord: clamp(3rem, 16vw, 5.5rem);
+  --lh: 1.45;
+
+  /* Отступы */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --gutter: 16px;
+
+  /* Радиусы */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  /* Размеры */
+  --tap: 48px;
+  --nav-h: 64px;
+  --rail-w: 92px;
+  --head-h: 56px;
+  --page-max: 720px;
+  --page-wide: 1200px;
+
+  /* Безопасные зоны (вырез, жестовая полоса) */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+
+  /* Движение */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+}
+
+@media (min-width: 600px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+
+@media (min-width: 840px) {
+  :root {
+    --gutter: 32px;
+  }
+}
+
+/* Тёмная тема: «тёплый уголь». Набор повторяется дважды — для системной темы и для явного выбора. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #1a1513;
+    --bg-glow: rgba(255, 120, 70, 0.1);
+    --surface: #231c19;
+    --surface-2: #2d2521;
+    --surface-3: #382e29;
+    --line: #3a302a;
+    --line-strong: #4d4038;
+    --scrim: rgba(0, 0, 0, 0.55);
+    --ink: #f5ece3;
+    --ink-2: #b5a79b;
+    --ink-3: #85776c;
+    --accent: #ff8b5e;
+    --accent-strong: #ff8b5e;
+    --accent-2: #ffb067;
+    --accent-soft: #3d2a22;
+    --accent-ink: #ffb394;
+    --on-accent: #2a1208;
+    --sunset: linear-gradient(135deg, #ffb067 0%, #ff8b5e 55%, #f2667a 100%);
+    --teal: #4fc4be;
+    --teal-soft: #1d3533;
+    --teal-ink: #7fd9d3;
+    --on-teal: #0e2422;
+    --success: #5ccb8a;
+    --success-soft: #1e3326;
+    --success-ink: #8fe0ae;
+    --on-success: #0f2417;
+    --warn: #f2b84b;
+    --warn-soft: #3a2e17;
+    --warn-ink: #f7cd7a;
+    --on-warn: #2a1d06;
+    --danger: #ff6b6b;
+    --danger-soft: #3d1f1f;
+    --danger-ink: #ff9c9c;
+    --on-danger: #2a0b0b;
+    --focus: #7fd9d3;
+    --toast-action: #a83a1f;
+    --cd-line: #8a7b70;
+    --cd-nut: #f5ece3;
+    --cd-dot: #ff8b5e;
+    --cd-dot-ink: #2a1208;
+    --cd-open: #f5ece3;
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.35);
+    --shadow-3: 0 -4px 24px rgba(0, 0, 0, 0.4), 0 20px 48px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #1a1513;
+  --bg-glow: rgba(255, 120, 70, 0.1);
+  --surface: #231c19;
+  --surface-2: #2d2521;
+  --surface-3: #382e29;
+  --line: #3a302a;
+  --line-strong: #4d4038;
+  --scrim: rgba(0, 0, 0, 0.55);
+  --ink: #f5ece3;
+  --ink-2: #b5a79b;
+  --ink-3: #85776c;
+  --accent: #ff8b5e;
+  --accent-strong: #ff8b5e;
+  --accent-2: #ffb067;
+  --accent-soft: #3d2a22;
+  --accent-ink: #ffb394;
+  --on-accent: #2a1208;
+  --sunset: linear-gradient(135deg, #ffb067 0%, #ff8b5e 55%, #f2667a 100%);
+  --teal: #4fc4be;
+  --teal-soft: #1d3533;
+  --teal-ink: #7fd9d3;
+  --on-teal: #0e2422;
+  --success: #5ccb8a;
+  --success-soft: #1e3326;
+  --success-ink: #8fe0ae;
+  --on-success: #0f2417;
+  --warn: #f2b84b;
+  --warn-soft: #3a2e17;
+  --warn-ink: #f7cd7a;
+  --on-warn: #2a1d06;
+  --danger: #ff6b6b;
+  --danger-soft: #3d1f1f;
+  --danger-ink: #ff9c9c;
+  --on-danger: #2a0b0b;
+  --focus: #7fd9d3;
+  --toast-action: #a83a1f;
+  --cd-line: #8a7b70;
+  --cd-nut: #f5ece3;
+  --cd-dot: #ff8b5e;
+  --cd-dot-ink: #2a1208;
+  --cd-open: #f5ece3;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.3), 0 10px 28px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 -4px 24px rgba(0, 0, 0, 0.4), 0 20px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* Меньше движения — по просьбе системы */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 1ms;
+    --dur-2: 1ms;
+    --dur-3: 1ms;
+  }
+}

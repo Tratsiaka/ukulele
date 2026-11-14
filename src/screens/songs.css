@@ -1,0 +1,703 @@
+/* Экраны «Песни» и «Добавить песню». Только токены из styles/tokens.css, классы с префиксом songs-. */
+
+/* ---------- вкладки и фильтры ---------- */
+
+.songs-tabs {
+  width: 100%;
+}
+
+@media (min-width: 840px) {
+  .songs-tabs {
+    max-width: 360px;
+  }
+}
+
+.songs-filters {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.songs-count {
+  margin-left: 2px;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.songs-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---------- список песен ---------- */
+
+.songs-list {
+  display: grid;
+  gap: var(--s-2);
+}
+
+@media (min-width: 840px) {
+  .songs-list {
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: var(--s-3);
+  }
+}
+
+.songs-list > li {
+  min-width: 0;
+  animation: uke-rise var(--dur-3) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 24ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .songs-list > li {
+    animation: none;
+  }
+}
+
+.songs-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  height: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  transition: box-shadow var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease), transform var(--dur-1) var(--ease);
+}
+
+.songs-row-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 4px 14px 16px;
+  border-radius: var(--r-lg);
+  color: inherit;
+  text-decoration: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.songs-row-main:active {
+  background: var(--surface-2);
+}
+
+/* Строка выдачи — одна кнопка целиком */
+.songs-hit {
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  color: inherit;
+  text-align: left;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.songs-hit > * {
+  max-width: 100%;
+}
+
+.songs-hit:active {
+  transform: scale(0.99);
+  background: var(--surface-2);
+}
+
+@media (hover: hover) {
+  .songs-row:hover,
+  .songs-hit:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-2);
+  }
+}
+
+.songs-row-more {
+  margin: 4px 4px 0 0;
+  color: var(--ink-2);
+}
+
+.songs-row-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.songs-row-title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--fs-lg);
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.songs-row-meta {
+  overflow: hidden;
+  margin-top: -4px;
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.songs-row-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.songs-fav {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--accent);
+  animation: songs-pop var(--dur-3) var(--ease-out) both;
+}
+
+/* Статус: точка (пустая — новая) + слово в мета-строке */
+.songs-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--ink-3);
+  border-radius: 50%;
+}
+
+.songs-dot--learning {
+  border-color: var(--warn);
+  background: var(--warn);
+}
+
+.songs-dot--playing {
+  border-color: var(--teal);
+  background: var(--teal);
+}
+
+.songs-dot--polished {
+  border-color: var(--success);
+  background: var(--success);
+}
+
+/* Компактные аккорды в строке */
+.songs-chords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.songs-chords .chord-chip {
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 8px;
+  border-width: 1.5px;
+  border-radius: var(--r-xs);
+  font-size: var(--fs-sm);
+  gap: 3px;
+}
+
+.songs-chords .chord-chip-mark {
+  margin-right: -2px;
+}
+
+.songs-chords .chord-chip-mark svg {
+  width: 12px;
+  height: 12px;
+}
+
+.songs-chords .chord-chip.is-new {
+  opacity: 0.62;
+}
+
+.songs-chords-more {
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+/* Бейджи и звёзды */
+.chip.songs-badge {
+  min-height: 28px;
+  padding: 0 10px;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.chip.songs-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.songs-badge--playable {
+  animation: songs-glow 1.6s var(--ease) 1 both;
+}
+
+.songs-stars {
+  display: inline-flex;
+  gap: 1px;
+  color: var(--line-strong);
+}
+
+.songs-stars .is-on {
+  color: var(--warn);
+}
+
+/* ---------- карточки под списком ---------- */
+
+.songs-next {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.songs-next-chord {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  min-width: 56px;
+  height: 56px;
+  padding: 0 10px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--accent-ink);
+  font-size: var(--fs-xl);
+  box-shadow: var(--shadow-1);
+}
+
+.songs-next-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.songs-notfound {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-top: var(--s-2);
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+}
+
+.songs-notfound-text {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.songs-notfound-text b {
+  color: var(--ink);
+}
+
+/* ---------- поиск ---------- */
+
+.songs-search {
+  position: relative;
+}
+
+.songs-search input {
+  min-height: 52px;
+  padding-right: 52px;
+  padding-left: 46px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+
+.songs-search input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.songs-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  color: var(--ink-3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.songs-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+}
+
+.songs-search-clear .icon-btn {
+  color: var(--ink-2);
+}
+
+.songs-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.songs-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.chip.songs-source,
+.songs-source .chip {
+  min-height: 34px;
+  font-size: var(--fs-xs);
+}
+
+.songs-spin {
+  animation: uke-spin 0.9s linear infinite;
+}
+
+.songs-offline {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  color: var(--ink);
+}
+
+.songs-offline svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--warn-ink);
+}
+
+.songs-intro-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.songs-intro-hint svg {
+  flex: 0 0 auto;
+  color: var(--teal);
+}
+
+/* Скелет строки, пока источники думают */
+.songs-skel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.songs-skel span {
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: songs-shimmer 1.4s ease-in-out infinite;
+}
+
+.songs-skel span:nth-child(1) {
+  width: 60%;
+  height: 16px;
+}
+
+.songs-skel span:nth-child(2) {
+  width: 35%;
+}
+
+.songs-skel span:nth-child(3) {
+  width: 75%;
+  height: 28px;
+}
+
+/* ---------- шторки ---------- */
+
+.songs-menu .divider {
+  margin: var(--s-1) 0;
+}
+
+.songs-menu-foot {
+  --gap: var(--s-2);
+}
+
+.btn.songs-danger {
+  --btn-fg: var(--danger-ink);
+}
+
+.songs-preview {
+  --gap: var(--s-4);
+}
+
+.songs-versions {
+  margin-top: calc(-1 * var(--s-2));
+}
+
+.songs-diagrams {
+  --gap: var(--s-3);
+  margin-top: calc(-1 * var(--s-1));
+}
+
+.songs-error {
+  color: var(--danger-ink);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.songs-saved {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  color: var(--success-ink);
+  font-weight: 700;
+}
+
+.songs-sheet-actions {
+  position: sticky;
+  bottom: calc(-1 * (var(--s-5) + var(--safe-b)));
+  margin: 0 calc(-1 * var(--s-5));
+  padding: var(--s-3) var(--s-5) calc(var(--s-3) + var(--safe-b));
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+@media (min-width: 840px) {
+  .songs-sheet-actions {
+    bottom: calc(-1 * var(--s-5));
+    padding-bottom: var(--s-3);
+  }
+}
+
+/* ---------- превью текста: аккорд над слогом ---------- */
+
+.songs-snippet {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-size: var(--fs-md);
+  line-height: 1.35;
+}
+
+.songs-snip-label {
+  margin-top: var(--s-2);
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.songs-snip-label:first-child {
+  margin-top: 0;
+}
+
+.songs-snip-comment {
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+  font-style: italic;
+}
+
+.songs-snip-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.songs-snip-line.has-chords {
+  margin-top: 4px;
+}
+
+.songs-snip-seg {
+  display: inline-flex;
+  flex-direction: column;
+  max-width: 100%;
+  white-space: break-spaces;
+}
+
+.songs-snip-chord {
+  padding-right: 0.4em;
+  color: var(--accent-ink);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.songs-snip-chordline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 0.9em;
+  margin-top: 4px;
+}
+
+/* ---------- импорт ---------- */
+
+.songs-import-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--s-3);
+}
+
+.songs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.songs-field-label {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 650;
+}
+
+.songs-import-text {
+  min-height: 300px;
+  font-family: var(--font-mono);
+  font-size: max(16px, 0.95rem);
+  line-height: 1.45;
+  white-space: pre;
+  overflow-x: auto;
+  tab-size: 4;
+}
+
+@media (min-width: 840px) {
+  .songs-import-text {
+    min-height: 52vh;
+  }
+}
+
+.songs-import-bar {
+  justify-content: flex-end;
+  margin-top: var(--s-2);
+}
+
+.songs-import-status {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.songs-import-status.is-warn {
+  color: var(--warn-ink);
+  font-weight: 650;
+}
+
+.songs-tips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.songs-tips b {
+  color: var(--ink);
+}
+
+.songs-tips code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--accent-ink);
+}
+
+.songs-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+}
+
+.songs-hint-icon {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--accent-ink);
+}
+
+.songs-fetch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  margin-top: var(--s-6);
+  padding: var(--s-6) var(--s-5);
+  text-align: center;
+}
+
+.songs-fetch-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--teal-soft);
+  color: var(--teal-ink);
+}
+
+/* ---------- анимации ---------- */
+
+@keyframes songs-pop {
+  0% {
+    transform: scale(0.4);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes songs-glow {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--success) 40%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--success) 0%, transparent);
+  }
+}
+
+@keyframes songs-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .songs-fav,
+  .songs-badge--playable,
+  .songs-skel span {
+    animation: none;
+  }
+}

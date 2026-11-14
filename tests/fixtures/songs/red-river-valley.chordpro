@@ -1,0 +1,31 @@
+{title: Red River Valley}
+{artist: Traditional}
+{key: C}
+{tempo: 96}
+{x_strum: du}
+# Это комментарий ChordPro, его не видно
+
+{start_of_verse: Verse 1}
+From this [C]valley they say you are [G7]going,
+We will [G7]miss your bright eyes and sweet [C]smile.
+{end_of_verse}
+
+{soc}
+Come and [C]sit by my side if you [F]love me,
+
+Do not [C]hasten to bid me a[G7]dieu.
+{eoc}
+
+{c: Repeat chorus}
+{chorus}
+
+{sot}
+A|--0--3--|
+E|--------|
+C|--------|
+G|--------|
+{eot}
+
+{start_of_bridge}
+[Am] [F] [C] [G]
+{end_of_bridge}

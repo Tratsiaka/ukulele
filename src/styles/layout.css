@@ -1,0 +1,305 @@
+/* Оболочка: нижняя навигация (телефон), боковая рейка (десктоп ≥840px), страница, заставка. */
+
+.app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.app-main {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-right: var(--safe-r);
+  padding-left: var(--safe-l);
+}
+
+.app--tabs .app-main {
+  padding-bottom: calc(var(--nav-h) + var(--safe-b));
+}
+
+.app--full .app-main {
+  padding-bottom: var(--safe-b);
+}
+
+/* ---------- Навигация ---------- */
+
+.nav {
+  position: fixed;
+  z-index: 40;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: stretch;
+  height: calc(var(--nav-h) + var(--safe-b));
+  padding: 0 var(--safe-r) var(--safe-b) var(--safe-l);
+  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  -webkit-backdrop-filter: saturate(1.5) blur(14px);
+  backdrop-filter: saturate(1.5) blur(14px);
+  border-top: 1px solid var(--line);
+}
+
+.nav-brand,
+.nav-extra {
+  display: none;
+}
+
+.nav-item {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--ink-2);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.1;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: color var(--dur-2) var(--ease);
+}
+
+.nav-pill {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 30px;
+  border-radius: var(--r-pill);
+  transition: background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+
+.nav-item:active .nav-pill {
+  transform: scale(0.92);
+}
+
+.nav-item[aria-current='page'] {
+  color: var(--ink);
+}
+
+.nav-item[aria-current='page'] .nav-pill {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.nav-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-item:focus-visible {
+  outline-offset: -4px;
+  border-radius: var(--r-md);
+}
+
+@media (min-width: 840px) {
+  .nav {
+    top: 0;
+    right: auto;
+    width: calc(var(--rail-w) + var(--safe-l));
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: calc(16px + var(--safe-t)) 0 calc(16px + var(--safe-b)) var(--safe-l);
+    border-top: 0;
+    border-right: 1px solid var(--line);
+  }
+
+  .nav-brand {
+    display: grid;
+    place-items: center;
+    height: 56px;
+    margin-bottom: 14px;
+    text-decoration: none;
+  }
+
+  .nav-brand svg {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-1);
+  }
+
+  .nav-item {
+    flex: 0 0 auto;
+    height: 68px;
+    gap: 5px;
+    font-size: 0.75rem;
+  }
+
+  .nav-extra {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+  }
+
+  .app--tabs .app-main {
+    padding-bottom: var(--safe-b);
+    padding-left: calc(var(--rail-w) + var(--safe-l));
+  }
+}
+
+@media (hover: hover) {
+  .nav-item:hover {
+    color: var(--ink);
+  }
+
+  .nav-item:hover .nav-pill {
+    background: var(--surface-2);
+  }
+
+  .nav-item[aria-current='page']:hover .nav-pill {
+    background: var(--accent-soft);
+  }
+}
+
+/* ---------- Страница ---------- */
+
+.page {
+  width: 100%;
+  max-width: calc(var(--page-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter) var(--s-7);
+  animation: uke-fade-in var(--dur-2) var(--ease) both;
+}
+
+.page--wide {
+  max-width: calc(var(--page-wide) + 2 * var(--gutter));
+}
+
+.page-head {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: calc(var(--head-h) + var(--safe-t));
+  margin: 0 calc(-1 * var(--gutter));
+  padding: var(--safe-t) var(--gutter) 0;
+  background: transparent;
+  transition: background-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+
+/* Подложка шапки появляется, только когда контент уехал под неё (класс ставит App) */
+html.is-scrolled .page-head {
+  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  backdrop-filter: saturate(1.4) blur(12px);
+  box-shadow: 0 1px 0 var(--line);
+}
+
+@media (min-width: 840px) {
+  html.is-scrolled .page-head {
+    border-radius: 0 0 var(--r-md) var(--r-md);
+  }
+}
+
+.page-head--back {
+  padding-left: calc(var(--gutter) - 8px);
+}
+
+.page-titles {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 10px 0;
+}
+
+.page-title {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.page-head--back .page-title {
+  font-size: var(--fs-lg);
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-subtitle {
+  margin-top: 2px;
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin-right: -6px;
+}
+
+.page-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding-top: var(--s-2);
+}
+
+@media (min-width: 840px) {
+  .page-head:not(.page-head--back) {
+    min-height: calc(76px + var(--safe-t));
+  }
+
+  .page-title {
+    font-size: var(--fs-3xl);
+  }
+
+  .page-head--back .page-title {
+    font-size: var(--fs-xl);
+  }
+}
+
+/* ---------- Заставка и ошибка запуска ---------- */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-4);
+  padding: var(--s-6);
+  text-align: center;
+  background: var(--bg);
+  animation: uke-fade-in 400ms var(--ease) 250ms both;
+}
+
+.splash-logo {
+  width: 88px;
+  height: 88px;
+  border-radius: 24px;
+  box-shadow: var(--shadow-2);
+  animation: uke-breathe 2.4s ease-in-out infinite;
+}
+
+.splash-name {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.splash-hint {
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.boot-error {
+  max-width: 420px;
+}
